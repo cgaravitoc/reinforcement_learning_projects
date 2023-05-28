@@ -20,7 +20,6 @@ def try_env():
     act.run()
     print('Done!')
 
-
 def train_and_run_SARSA():
     '''
     Trains a SARSA agent on the Mountain Car
@@ -40,7 +39,7 @@ def train_and_run_SARSA():
     print('Testing the agent...')
     act.test()
     print('Done!')
-    
+
 def sweep_SARSA():
     '''
     Runs a sweep over alpha
@@ -53,7 +52,7 @@ def sweep_SARSA():
     # Sweep alpha
     print('Sweeping alpha...')
     alphas = [0.2/8, 0.4/8, 0.8/8]
-    act.sweep(parameter='alpha', values=alphas)
+    act.sweep(parameter='alpha', values=alphas, num_simulations=10)
     print('Done!')
 
 
@@ -81,6 +80,31 @@ def load_agent_SarsaCS() -> SarsaCS:
     # Create agent
     return SarsaCS(parameters, Q)
 
+def load_agent_nStepCS() -> nStepCS:
+    '''
+    Creates a SarsaCS agent with a set
+    of parameters determined inset
+    '''
+    # Define parameters
+    parameters = {"numDims":2,\
+                  "nA":3,\
+                  "gamma":1,\
+                  "epsilon":0.1,\
+                  "alpha":0.1,\
+                  "numTilings":8,\
+                  "n" : 8,\
+                  "numTiles":[10, 10],\
+                  "scaleFactors":[\
+                    {"min":-1.2,\
+                    "max":0.6},
+                    {"min":-0.07,\
+                      "max":0.07}]
+                    }
+    # Create approximating function
+    Q = TilesQ(parameters=parameters)
+    # Create agent
+    return nStepCS(parameters, Q)
+
 
 def load_act(agent, model_name:str) -> TrainRun:
     '''
@@ -97,19 +121,18 @@ def load_act(agent, model_name:str) -> TrainRun:
         )
     return act
 
-
 def sweep_nStep():
     '''
     Runs a sweep over alpha
     '''
     # Create agent
     print('Loading agent and environment...')
-    agent = load_agent_SarsaCS()
+    agent = load_agent_nStepCS()
     # Create train-and-run object
     act = load_act(agent, 'Sarsa')
     # Sweep alpha
     print('Sweeping alpha...')
     alphas = [0.2/8, 0.4/8, 0.8/8]
     n = [2, 4, 8]
-    act.sweep2(parameter1='alpha', values1=alphas, parameter2='n', values2=n)
+    act.sweep2(parameter1='alpha', values1=alphas, parameter2='n', values2=n, num_simulations=10)
     print('Done!')
